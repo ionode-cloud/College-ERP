@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - College ERP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <!-- Login Check Loading -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader">🔄 Verifying Login...</div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <nav class="navbar">
+            <div class="nav-left">
+                <h2>🎓 Student Dashboard</h2>
+                <span id="currentUserId" class="user-badge"></span>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </nav>
+
+        <div class="dashboard-container">
+            <!-- Profile Card -->
+            <div class="profile-card student-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar">👨‍🎓</div>
+                    <h2 id="studentName">Loading...</h2>
+                </div>
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">ID</span>
+                        <span id="studentId" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span id="studentEmail" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone</span>
+                        <span id="studentPhone" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Course</span>
+                        <span id="studentCourse" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Age</span>
+                        <span id="studentAge" class="info-value">-</span>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button onclick="downloadProfile()" class="action-btn primary">📥 Download Profile</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+           </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
