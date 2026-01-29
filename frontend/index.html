@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student/Teacher Login - College ERP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <h1>🎓 College ERP</h1>
+                <p>Student / Teacher Login</p>
+            </div>
+            <form id="loginForm">
+                <input type="email" id="loginGmail" placeholder="Enter Gmail ID (student@college.com)" required>
+                <input type="password" id="loginPass" placeholder="Password" required>
+                <div class="role-buttons">
+                    <label>
+                        <input type="radio" name="userRole" value="student" checked> 👨‍🎓 Student
+                    </label>
+                    <label>
+                        <input type="radio" name="userRole" value="teacher"> 👨‍🏫 Teacher
+                    </label>
+                </div>
+                <button type="submit">🚀 Login</button>
+            </form>
+            <div class="login-links">
+                <a href="admin-login.html">🔐 Admin Login →</a>
+            </div>
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

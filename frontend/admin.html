@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - College ERP</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 🔥 PERFECT RESPONSIVE DESIGN */
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border-radius: 12px; margin-bottom: 20px; }
+        .navbar h2 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .logout-btn:hover { background: #dc2626; transform: translateY(-2px); }
+
+        /* 🔥 Stats Cards - Responsive Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 30px 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: left 0.5s; }
+        .stat-card:hover::before { left: 100%; }
+        .stat-card:hover { transform: translateY(-10px); box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .stat-icon { font-size: 3rem; margin-bottom: 10px; }
+        .stat-card h3 { margin: 10px 0 5px 0; font-size: 1.1rem; opacity: 0.9; }
+        .stat-card span { font-size: 2.5rem; font-weight: bold; }
+
+        /* 🔥 Forms - Perfect Mobile Responsive */
+        .form-section { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .form-section h3 { color: #1e40af; margin-bottom: 25px; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 0.95rem; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-row > * { flex: 1; min-width: 200px; }
+        input { width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: all 0.3s; background: #fafbfc; }
+        input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); background: white; transform: translateY(-1px); }
+        .file-input-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        input[type="file"] { padding: 10px; background: #f1f5f9; border-color: #d1d5db; }
+        button[type="submit"] { width: 100%; padding: 18px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(59,130,246,0.4); }
+
+        /* 🔥 Credentials */
+        .credentials { padding: 20px; margin: 20px 0; border-radius: 12px; font-weight: bold; text-align: center; animation: pulse 2s infinite; }
+        .credentials.success { background: linear-gradient(135deg, #10b981, #059669); color: white; border: 2px solid #047857; }
+
+        /* 🔥 Tables - Perfect Responsive */
+        .recovery-section { background: #f8fafc; padding: 30px; border-radius: 20px; margin-bottom: 30px; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .table-header h4 { margin: 0; color: #1e40af; font-size: 1.3rem; }
+        .table-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .action-btn, .reset-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .action-btn { background: #10b981; color: white; }
+        .reset-btn { background: #f59e0b; color: white; }
+        .reset-btn:hover { background: #d97706; transform: translateY(-1px); }
+        .table-container { overflow-x: auto; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th { background: linear-gradient(135deg, #f8fafc, #e2e8f0); padding: 16px 12px; text-align: left; font-weight: 600; color: #374151; position: sticky; top: 0; }
+        td { padding: 16px 12px; border-bottom: 1px solid #f1f5f9; }
+        tr:hover { background: #f8fafc; }
+        .copy-btn, .reset-password-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin: 0 2px; }
+        .reset-password-btn { background: #ef4444; }
+        .reset-password-btn:hover { background: #dc2626; }
+        .password-cell { font-family: monospace; font-weight: bold; }
+
+        /* 🔥 MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .dashboard-container { padding: 15px; }
+            .form-row, .file-input-group, .table-header { flex-direction: column; gap: 10px; }
+            .form-row > *, .file-input-group > * { min-width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; gap: 15px; text-align: center; padding: 15px; }
+            th, td { padding: 12px 8px; font-size: 0.85rem; }
+            .table-container { border-radius: 12px; }
+        }
+        
+        @media (max-width: 480px) {
+            .form-section { padding: 20px; }
+            th:nth-child(1), td:nth-child(1) { display: none; } /* Hide Roll No on tiny screens */
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+    </style>
+</head>
+<body class="dashboard-body">
+    <nav class="navbar">
+        <h2>🔐 Admin Dashboard</h2>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- 🔥 Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card clickable" onclick="showStudentsList()">
+                <div class="stat-icon">👥</div>
+                <h3>Total Students</h3>
+                <span id="totalStudents">0</span>
+            </div>
+            <div class="stat-card clickable" onclick="showTeachersList()">
+                <div class="stat-icon">👨‍🏫</div>
+                <h3>Total Teachers</h3>
+                <span id="totalTeachers">0</span>
+            </div>
+        </div>
+
+        <!-- 🔥 Add Student Form -->
+        <div class="form-section">
+            <h3>➕ Add New Student</h3>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label class="form-label" for="sName">👤 Full Name *</label>
+                    <input type="text" id="sName" placeholder="Enter full name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="sRollNo">🆔 Roll No *</label>
+                        <input type="text" id="sRollNo" placeholder="CSE001, ECE002 etc." required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sBranch">🏛️ Branch *</label>
+                        <input type="text" id="sBranch" placeholder="CSE, ECE, MECH, CIVIL" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="sGmail">📧 Gmail ID *</label>
+                        <input type="email" id="sGmail" placeholder="student@college.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sMobile">📱 Mobile</label>
+                        <input type="tel" id="sMobile" placeholder="9876543210">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="sAddress">🏠 Address</label>
+                        <input type="text" id="sAddress" placeholder="Complete address">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sAge">📅 Age</label>
+                        <input type="number" id="sAge" placeholder="20" min="16" max="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="sDob">🎂 Date of Birth</label>
+                    <input type="date" id="sDob">
+                </div>
+
+                <div class="file-input-group">
+                    <div class="form-group">
+                        <label class="form-label" for="sPhoto">📸 Photo</label>
+                        <input type="file" id="sPhoto" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sCertificates">📄 Certificates</label>
+                        <input type="file" id="sCertificates" multiple accept=".pdf,.jpg,.png">
+                    </div>
+                </div>
+
+                <button type="submit">✅ Create Student Account</button>
+            </form>
+            <div id="studentCredentials" class="credentials" style="display: none;"></div>
+        </div>
+
+        <!-- 🔥 Add Teacher Form -->
+        <div class="form-section">
+            <h3>➕ Add New Teacher</h3>
+            <form id="teacherForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="tName">👨‍🏫 Full Name *</label>
+                        <input type="text" id="tName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tAge">📅 Age</label>
+                        <input type="number" id="tAge" placeholder="35" min="25" max="65">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="tGmail">📧 Gmail ID *</label>
+                        <input type="email" id="tGmail" placeholder="teacher@college.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tSubject">📚 Subject *</label>
+                        <input type="text" id="tSubject" placeholder="Mathematics, Physics" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="tProfession">💼 Profession</label>
+                        <input type="text" id="tProfession" placeholder="Professor, Lecturer">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tDob">🎂 Date of Birth</label>
+                        <input type="date" id="tDob">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="tPhone">📱 Phone</label>
+                    <input type="tel" id="tPhone" placeholder="9876543210">
+                </div>
+
+                <button type="submit">✅ Create Teacher Account</button>
+            </form>
+            <div id="teacherCredentials" class="credentials" style="display: none;"></div>
+        </div>
+
+        <!-- 🔥 Recovery Tables WITH RESET PASSWORD -->
+        <div class="recovery-section">
+            <div class="table-header">
+                <h4>📋 All Login Credentials + Fees</h4>
+                <button onclick="loadRecoveryTables()" class="action-btn">🔄 Refresh</button>
+            </div>
+            
+            <!-- Students Table -->
+            <div class="recovery-table">
+                <h4>📚 Students</h4>
+                <div class="table-container">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Branch</th>
+                                <th>Gmail</th>
+                                <th>Password</th>
+                                <th>Fees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Teachers Table -->
+            <div class="recovery-table">
+                <h4>👨‍🏫 Teachers</h4>
+                <div class="table-container">
+                    <table id="teachersTable">
+                        <thead>
+                            <tr>
+                                <th>Gmail</th>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Age</th>
+                                <th>Password</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 🔥 Reset Password API + Enhanced Functions
+        async function resetUserPassword(email, type) {
+            try {
+                const newPass = 'Pass' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                const response = await fetch('http://localhost:5000/api/admin/reset-password', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ email, type, newPassword: newPass })
+                });
+                
+                if (response.ok) {
+                    alert(`✅ ${type === 'student' ? 'Student' : 'Teacher'} password reset!\nNew Password: ${newPass}`);
+                    loadRecoveryTables(); // Refresh table
+                } else {
+                    alert('❌ Reset failed');
+                }
+            } catch (err) {
+                alert('❌ Error: ' + err.message);
+            }
+        }
+
+        window.resetStudentPassword = (email) => resetUserPassword(email, 'student');
+        window.resetTeacherPassword = (email) => resetUserPassword(email, 'teacher');
+
+        // ✅ Enhanced table loading with reset buttons
+        window.loadRecoveryTables = async function() {
+            try {
+                const students = await erp.getStudents();
+                const teachers = await erp.getTeachers();
+                const feesByBranch = {
+                    CSE: { sem1: 55000, sem2: 55000, total: 110000 },
+                    ECE: { sem1: 52000, sem2: 52000, total: 104000 },
+                    MECH: { sem1: 48000, sem2: 48000, total: 96000 },
+                    CIVIL: { sem1: 45000, sem2: 45000, total: 90000 }
+                };
+
+                // Students table
+                document.getElementById('studentsTableBody').innerHTML = students.map(s => {
+                    const fees = feesByBranch[s.branch] || feesByBranch.CSE;
+                    return `
+                        <tr>
+                            <td><strong>${s.rollNo}</strong></td>
+                            <td>${s.name}</td>
+                            <td><span style="color: #8b5cf6;">${s.branch}</span></td>
+                            <td>${s.gmail}</td>
+                            <td class="password-cell" style="color: #10b981;">${s.tempPassword}</td>
+                            <td style="color: #059669; font-weight: bold;">₹${fees.total.toLocaleString()}</td>
+                            <td>
+                                <button onclick="copyCredentials('${s.rollNo}', '${s.gmail}', '${s.tempPassword}')" class="copy-btn" title="Copy">📋</button>
+                                <button onclick="resetStudentPassword('${s.gmail}')" class="reset-password-btn" title="Reset Password">🔄</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Teachers table
+                document.getElementById('teachersTableBody').innerHTML = teachers.map(t => `
+                    <tr>
+                        <td><strong>${t.gmail}</strong></td>
+                        <td>${t.name}</td>
+                        <td>${t.subject}</td>
+                        <td>${t.age || 'N/A'}</td>
+                        <td class="password-cell" style="color: #10b981;">${t.tempPassword}</td>
+                        <td>
+                            <button onclick="copyCredentials('${t.gmail}', '${t.gmail}', '${t.tempPassword}')" class="copy-btn" title="Copy">📋</button>
+                            <button onclick="resetTeacherPassword('${t.gmail}')" class="reset-password-btn" title="Reset Password">🔄</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('totalStudents').textContent = students.length;
+                document.getElementById('totalTeachers').textContent = teachers.length;
+            } catch (err) {
+                console.error('Load error:', err);
+            }
+        };
+
+        // Auto-load
+        window.addEventListener('load', loadRecoveryTables);
+    </script>
+</body>
+</html>

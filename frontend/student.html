@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - College ERP</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ✅ Enhanced Student Dashboard Styles */
+        .student-profile { 
+            max-width: 600px; margin: 20px auto; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .profile-avatar img { 
+            width: 90px; height: 90px; border: 5px solid white; border-radius: 50%; object-fit: cover;
+        }
+        .profile-header { text-align: center; margin-bottom: 30px; }
+        .info-item { 
+            display: flex; justify-content: space-between; padding: 12px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 1.1em;
+        }
+        .info-label { font-weight: 600; opacity: 0.9; }
+        .certificates-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 15px;
+        }
+        .cert-item { 
+            background: rgba(255,255,255,0.15); padding: 15px; border-radius: 12px; text-align: center; 
+            backdrop-filter: blur(10px); transition: transform 0.3s; cursor: pointer;
+        }
+        .cert-item:hover { transform: translateY(-5px); }
+        .fees-display { 
+            background: rgba(255,255,255,0.15); padding: 25px; border-radius: 15px; 
+            backdrop-filter: blur(10px); margin: 20px 0;
+        }
+        .fee-item { margin: 12px 0; font-size: 1.2em; }
+        .total-fee { font-size: 1.6em; font-weight: bold; color: #ffd700; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .profile-actions { text-align: center; margin-top: 30px; }
+        .action-btn { 
+            padding: 12px 30px; margin: 0 10px; border: none; border-radius: 25px; 
+            font-size: 1.1em; cursor: pointer; transition: all 0.3s;
+        }
+        .action-btn.primary { background: #10b981; color: white; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .loading-screen { 
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .user-badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; }
+        .loader { font-size: 1.5em; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="dashboard-body">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader">🔄 Loading Student Dashboard...</div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <nav class="navbar">
+            <div class="nav-left">
+                <h2>🎓 Student Dashboard</h2>
+                <span id="currentUserId" class="user-badge">Loading...</span>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </nav>
+
+        <div class="dashboard-container">
+            <!-- Profile Card -->
+            <div class="profile-card student-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <!-- ✅ LOCAL SVG - No network errors -->
+                        <svg id="studentPhoto" width="90" height="90" viewBox="0 0 90 90" fill="none">
+                            <circle cx="45" cy="45" r="45" fill="#667eea"/>
+                            <circle cx="45" cy="35" r="15" fill="white"/>
+                            <circle cx="38" cy="30" r="4" fill="#667eea"/>
+                            <circle cx="52" cy="30" r="4" fill="#667eea"/>
+                            <path d="M30 55 Q45 65 60 55" stroke="white" stroke-width="3" fill="none"/>
+                            <text x="45" y="80" text-anchor="middle" font-family="Arial" font-size="12" fill="white">👨‍🎓</text>
+                        </svg>
+                    </div>
+                    <h2 id="studentName">Loading Student...</h2>
+                </div>
+                
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">Roll No</span>
+                        <span id="studentRollNo">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Branch</span>
+                        <span id="studentBranch">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span id="studentGmail">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mobile</span>
+                        <span id="studentMobile">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Address</span>
+                        <span id="studentAddress">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">DOB</span>
+                        <span id="studentDob">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Age</span>
+                        <span id="studentAge">-</span>
+                    </div>
+                </div>
+
+                <!-- Certificates -->
+                <div class="certificates-section">
+                    <h4>📜 Certificates (<span id="certCount">0</span>)</h4>
+                    <div id="certificatesList" class="certificates-grid">
+                        <div style="text-align:center;color:rgba(255,255,255,0.5);">No certificates uploaded</div>
+                    </div>
+                </div>
+
+                <!-- Fees Structure -->
+                <div class="fees-section">
+                    <h4>💰 Course Fees</h4>
+                    <div class="fees-display">
+                        <div class="fee-item">Semester 1: <span id="sem1Fee">₹55,000</span></div>
+                        <div class="fee-item">Semester 2: <span id="sem2Fee">₹55,000</span></div>
+                        <div class="fee-item total-fee">Total: <span id="totalFee">₹1,10,000</span></div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button onclick="downloadProfile()" class="action-btn primary">📥 Download Profile</button>
+                    <button onclick="showPaymentStatus()" class="action-btn">💳 Payment Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ SHARED script.js FIRST -->
+    <script src="script.js"></script>
+    
+    <!-- ✅ SILENT STUDENT-SPECIFIC SCRIPT -->
+    <script>
+        // 🔥 PERFECTLY SILENT safeGetElement (No console output)
+        function safeGetElement(id) {
+            return document.getElementById(id) || null;
+        }
+
+        // 🔥 Load current student profile (PERFECT)
+        async function loadStudentProfile() {
+            try {
+                // Check login session
+                const userData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+                if (!userData?.gmail) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Find current student using shared ERP
+                const students = await window.erp?.getStudents();
+                if (!students) throw new Error('ERP not ready');
+                
+                const currentStudent = students.find(s => s.gmail === userData.gmail);
+                if (!currentStudent) throw new Error('Student not found');
+
+                // ✅ Populate ALL fields (Safe)
+                const setText = (id, value) => {
+                    const el = safeGetElement(id);
+                    if (el) el.textContent = value || 'N/A';
+                };
+
+                setText('studentName', currentStudent.name);
+                setText('studentRollNo', currentStudent.rollNo);
+                setText('studentBranch', currentStudent.branch);
+                setText('studentGmail', currentStudent.gmail);
+                setText('studentMobile', currentStudent.mobile);
+                setText('studentAddress', currentStudent.address);
+                
+                const dob = currentStudent.dob ? new Date(currentStudent.dob).toLocaleDateString('en-IN') : 'N/A';
+                setText('studentDob', dob);
+                setText('studentAge', currentStudent.age);
+
+                // ✅ Photo
+                const photoEl = safeGetElement('studentPhoto');
+                if (photoEl && currentStudent.photo) {
+                    photoEl.outerHTML = `<img src="http://localhost:5000${currentStudent.photo}" alt="Photo" style="width:90px;height:90px;border:5px solid white;border-radius:50%;object-fit:cover;">`;
+                }
+
+                // ✅ Certificates
+                const certList = safeGetElement('certificatesList');
+                const certCount = safeGetElement('certCount');
+                if (certList && currentStudent.certificates?.length) {
+                    certList.innerHTML = currentStudent.certificates.map(cert => 
+                        `<div class="cert-item">
+                            <a href="http://localhost:5000${cert}" target="_blank" style="color:white;text-decoration:none;">📄 ${cert.split('/').pop()}</a>
+                        </div>`
+                    ).join('');
+                    if (certCount) certCount.textContent = currentStudent.certificates.length;
+                }
+
+                // ✅ Fees
+                const fees = window.FEES_BY_BRANCH?.[currentStudent.branch] || window.FEES_BY_BRANCH.CSE;
+                setText('sem1Fee', '₹' + (fees?.sem1 || 55000).toLocaleString());
+                setText('sem2Fee', '₹' + (fees?.sem2 || 55000).toLocaleString());
+                setText('totalFee', '₹' + (fees?.total || 110000).toLocaleString());
+
+                // ✅ Show dashboard
+                setText('currentUserId', currentStudent.rollNo);
+                safeGetElement('loadingScreen').style.display = 'none';
+                safeGetElement('mainContent').style.display = 'block';
+
+            } catch (err) {
+                console.error('Student load error:', err);
+                safeGetElement('loadingScreen').innerHTML = `<div class="loader">❌ Error: ${err.message}<br><button onclick="location.reload()">Retry</button></div>`;
+            }
+        }
+
+        // 🔥 Profile actions
+        window.downloadProfile = () => {
+            const data = {
+                name: safeGetElement('studentName')?.textContent,
+                rollNo: safeGetElement('studentRollNo')?.textContent,
+                branch: safeGetElement('studentBranch')?.textContent,
+                email: safeGetElement('studentGmail')?.textContent
+            };
+            navigator.clipboard.writeText(`Student Profile\n==============\n${Object.entries(data).map(([k,v])=>`${k}: ${v}`).join('\n')}`);
+            alert('✅ Profile copied to clipboard!');
+        };
+
+        window.showPaymentStatus = () => {
+            alert('💳 Payment Status: Pending\n📅 Due Date: 15 Feb 2026\n💰 Semester 1: ₹55,000');
+        };
+
+        // 🔥 PERFECT AUTO-LOAD
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => window.erp && loadStudentProfile(), 300);
+            });
+        } else {
+            setTimeout(() => window.erp && loadStudentProfile(), 300);
+        }
+    </script>
+</body>
+</html>

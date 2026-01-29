@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - College ERP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <!-- Login Check Loading -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader">🔄 Verifying Login...</div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <nav class="navbar">
+            <div class="nav-left">
+                <h2>👨‍🏫 Teacher Dashboard</h2>
+                <span id="currentUserId" class="user-badge"></span>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </nav>
+
+        <div class="dashboard-container">
+            <!-- 🔥 COMPLETE Teacher Profile -->
+            <div class="profile-card teacher-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar">👨‍🏫</div>
+                    <h2 id="teacherName">Loading...</h2>
+                </div>
+                
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">Gmail ID</span>
+                        <span id="teacherGmail" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Subject</span>
+                        <span id="teacherSubject" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Age</span>
+                        <span id="teacherAge" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Profession</span>
+                        <span id="teacherProfession" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone</span>
+                        <span id="teacherPhone" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">DOB</span>
+                        <span id="teacherDob" class="info-value">-</span>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button onclick="downloadProfile()" class="action-btn primary">📥 Download Profile</button>
+                </div>
+            </div>
+
+            <!-- 🔥 CREATE CLASS FORM -->
+            <div class="form-section">
+                <h3>📅 Create New Class</h3>
+                <form id="createClassForm">
+                    <div class="form-row">
+                        <input type="text" id="classBranch" placeholder="Branch (CSE, ECE, etc.)" required>
+                        <input type="datetime-local" id="classStartTime" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="className" placeholder="Class Name (Maths-I, Physics Lab, etc.)" required>
+                        <input type="text" id="classSubject" placeholder="Subject" required>
+                    </div>
+                    <button type="submit">➕ Create Class & Load Students</button>
+                </form>
+                <div id="classCreatedMsg"></div>
+            </div>
+
+            <!-- 🔥 ATTENDANCE SECTION -->
+            <div id="attendanceSection" class="data-section">
+                <div class="section-header">
+                    <h3>📋 Class Attendance - <span id="currentClassName">-</span></h3>
+                    <span class="section-count" id="studentCount">0 Students</span>
+                </div>
+                
+                <!-- Branch Students Checkboxes -->
+                <div id="studentsList" class="students-grid"></div>
+                
+                <div class="attendance-actions">
+                    <button id="markAttendanceBtn" class="action-btn primary" onclick="markAttendance()" disabled>✅ Mark Attendance</button>
+                    <button onclick="clearAllAttendance()" class="action-btn danger">❌ Clear All</button>
+                    <button onclick="saveClassHistory()" class="action-btn">💾 Save Class History</button>
+                </div>
+            </div>
+
+            <!-- 🔥 STATS CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card clickable" onclick="loadMyClasses()">
+                    <div class="stat-icon">📚</div>
+                    <h3>My Classes</h3>
+                    <span id="totalClasses">0</span>
+                </div>
+                <div class="stat-card clickable" onclick="showAttendanceStats()">
+                    <div class="stat-icon">📊</div>
+                    <h3>Attendance Stats</h3>
+                    <span id="avgAttendance">0%</span>
+                </div>
+            </div>
+
+            <!-- 🔥 CLASS HISTORY (Hidden) -->
+            <div id="classHistorySection" class="data-section" style="display: none;">
+                <div class="section-header">
+                    <h3>📚 My Classes History</h3>
+                    <button class="close-btn" onclick="hideClassHistory()">✕</button>
+                </div>
+                <div id="classesList" class="attendance-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
