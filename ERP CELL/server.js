@@ -21,25 +21,22 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, "frontend")));
-
-// Default route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
-});
 
 //  CRITICAL FIX: Proper mongoose.Types import
 const mongooseTypes = mongoose.Types;
 
-//  STATIC FILE SERVING (FIRST - BEST PRACTICE)
+// ===== STATIC FILES (ONLY ONCE) =====
 app.use(express.static(path.join(__dirname, 'frontend')));
-app.use('/css', express.static(path.join(__dirname, 'frontend/css')));
-app.use('/js', express.static(path.join(__dirname, 'frontend/js')));
 
-// Serve login page for root, login, login.html
-app.get(['/', '/login', '/login.html'], (req, res) => {
+// ===== ROOT & AUTH PAGES =====
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+});
+
 
 //  CLASS MODEL - NEW! (CRITICAL FOR TEACHER CLASSES)
 const classSchema = new mongoose.Schema({
