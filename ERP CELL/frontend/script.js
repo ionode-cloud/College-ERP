@@ -660,30 +660,34 @@ window.loadAllSubjects = async () => {
 
 //  MASTER INIT - ADMIN SAFE
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 CollegeERP Loaded -', window.location.pathname);
-  
-  //  LOGIN PAGE
   if (window.location.pathname.includes('login')) {
-    console.log(' Login page detected');
     const loginForm = safeGetElement('loginForm');
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault();  // CRITICAL!
+        e.stopPropagation(); // EXTRA SAFETY
+        
         const email = safeGetElement('loginEmail')?.value;
         const password = safeGetElement('loginPassword')?.value;
         
-        if (!email || !password) return showMessage('Please enter email & password!', 'error');
+        console.log(' Login attempt:', email); // DEBUG
+        
+        if (!email || !password) {
+          return showMessage('Please enter email & password!', 'error');
+        }
         
         try {
-          await erp.login(email, password);
-          redirectToDashboard({ role: erp.userRole });
+          const result = await erp.login(email, password);
+          console.log(' Login success:', result.role); // DEBUG
+          redirectToDashboard({ role: result.role });
         } catch (err) {
+          console.error(' Login failed:', err); // DEBUG
           showMessage(err.message, 'error');
         }
       });
     }
-    return;
   }
+});
   
   //  DASHBOARDS
   console.log(' Dashboard loading...');

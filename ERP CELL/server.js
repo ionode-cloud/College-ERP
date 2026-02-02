@@ -16,9 +16,16 @@ const app = express();
 //  MIDDLEWARE ORDER (CRITICAL)
 app.set('trust proxy', 1);
 app.use(cors({
-  origin: ["https://college-erp-rkao.onrender.com", "http://localhost:3000"], // Add both
-  credentials: true  // For cookies/JWT
+  origin: [
+    "https://college-erp-rkao.onrender.com",           // Backend
+    "https://college-erp-beta.vercel.app",             // ← YOUR VERCEL URL!
+    "http://localhost:5000",                          // Local                  
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
