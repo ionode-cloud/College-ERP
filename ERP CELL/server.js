@@ -15,8 +15,8 @@ const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
 app.use(cors({
-  origin: 'http://localhost:5000',  //  FIX CORS
-  credentials: true
+  origin: ["https://college-erp-rkao.onrender.com", "http://localhost:3000"], // Add both
+  credentials: true  // For cookies/JWT
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
@@ -195,12 +195,18 @@ app.post('/api/auth/login', async (req, res) => {
     });
     
     //  SEND TOKEN IN RESPONSE + COOKIE
+    // res.cookie('jwt', token, { 
+    //   httpOnly: true,
+    //   secure: false,  // Set true for production HTTPS
+    //   sameSite: 'lax',
+    //   maxAge: 24 * 60 * 60 * 1000 
+    // });
     res.cookie('jwt', token, { 
-      httpOnly: true,
-      secure: false,  // Set true for production HTTPS
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000 
-    });
+  httpOnly: true, 
+  secure: process.env.NODE_ENV === 'production',  // false for local
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 24 * 60 * 60 * 1000  // 24h
+});
     
     const userData = {
       id: user._id,
