@@ -14,6 +14,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/erp')
 const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
+app.set('trust proxy', 1);
 app.use(cors({
   origin: ["https://college-erp-rkao.onrender.com", "http://localhost:3000"], // Add both
   credentials: true  // For cookies/JWT
