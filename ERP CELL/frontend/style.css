@@ -1,0 +1,308 @@
+/* 🔥 PROFESSIONAL COLLEGE ERP SYSTEM - ENTERPRISE EDITION */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+}
+
+body { 
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f7fa;
+  min-height: 100vh;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+/* 🔥 MAIN LAYOUT */
+.container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 2rem; 
+}
+
+.dashboard-container {
+  padding: 2rem 0;
+}
+
+/* 🔥 CLEAN FORMS */
+.login-form, .dashboard, .form-container {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  max-width: 500px;
+  margin: 2rem auto;
+  border: 1px solid #e2e8f0;
+}
+
+form { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 1.25rem; 
+}
+
+/* 🔥 FORM ELEMENTS */
+input, select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: #fafbfc;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* 🔥 PROFESSIONAL BUTTONS */
+button, .btn {
+  padding: 14px 24px;
+  background: #4299e1;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover, .btn:hover {
+  background: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+button:active, .btn:active {
+  transform: translateY(0);
+}
+
+button:disabled, .btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 🔥 ENTERPRISE TABLES */
+.table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+th { 
+  background: #f7fafc;
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: #4a5568;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+td { 
+  padding: 16px 20px; 
+  border-bottom: 1px solid #e2e8f0;
+}
+
+tr:hover {
+  background: #f7fafc;
+}
+
+/* 🔥 CLEAN CARDS */
+.card { 
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* 🔥 GRID LAYOUT */
+.grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+  gap: 1.5rem; 
+}
+
+/* 🔥 MESSAGE SYSTEM */
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+.message.success {
+  background: #c6f6d5;
+  color: #22543d;
+  border: 1px solid #9ae6b4;
+}
+
+.message.error {
+  background: #fed7d7;
+  color: #742a2a;
+  border: 1px solid #fc8181;
+}
+
+/* 🔥 PROFILE SECTION */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.profile-item {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.profile-label {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* 🔥 DASHBOARD HEADER */
+.dashboard-header {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.page-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  color: #718096;
+  font-size: 1.125rem;
+}
+
+/* 🔥 UTILITY CLASSES */
+.text-center { text-align: center; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-3 { margin-top: 1.5rem; }
+.hidden { display: none; }
+.full-width { width: 100%; }
+.text-muted { color: #718096; }
+
+/* 🔥 PROFESSIONAL SPACING */
+.section-padding {
+  padding: 3rem 0;
+}
+
+/* 🔥 RESPONSIVE */
+@media (max-width: 1024px) {
+  .container { padding: 1.5rem; }
+  .grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 1rem; }
+  .login-form, .dashboard { 
+    margin: 1rem;
+    padding: 2rem;
+  }
+  .page-title { font-size: 1.875rem; }
+  table { font-size: 14px; }
+  th, td { padding: 12px 12px; }
+}
+
+@media (max-width: 480px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .dashboard-header { padding: 2rem 1rem; }
+}
+
+/* 🔥 LOADING STATES */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.spinner {
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #4299e1;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.grade-A\+, .grade-A { color: #10b981; font-weight: bold; }
+.grade-B { color: #3b82f6; font-weight: bold; }
+.grade-C { color: #f59e0b; font-weight: bold; }
+.grade-D { color: #f97316; font-weight: bold; }
+.grade-F { color: #ef4444; font-weight: bold; }
+#classSubjectsPreview, #teacherSubjectsPreview { 
+  border-left: 4px solid #e5e7eb; 
+  padding: 12px; 
+  margin: 10px 0; 
+  border-radius: 0 6px 6px 0; 
+  background: #f9fafb; 
+  font-size: 14px; 
+  line-height: 1.4;
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: normal;
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - ERP Cell</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h1>Admin Dashboard</h1>
+      <div style="display: flex; gap: 10px;">
+        <span id="profileName" style="font-weight: 500; color: #374151;"></span>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
+    
+    <div class="grid">
+      <!--  ADD NEW SUBJECTS - NEW CARD! -->
+      <div class="card">
+        <h3> Add New Subjects</h3>
+        <form id="createSubjectForm">
+          <input id="subjectBranch" placeholder="Branch (MCA/BCA/CSE)" required>
+          <input id="subjectSemester" placeholder="Semester (1st/2nd/3rd)" required>
+          <input id="subjectNames" placeholder="Subjects (comma separated): Cloud, AI, Big Data" required>
+          <button type="submit">➕ Add Subjects</button>
+        </form>
+        <div id="subjectPreview" style="margin-top: 10px; padding: 8px; background: #f0f9ff; border-radius: 6px; font-size: 14px; border-left: 4px solid #10b981;"></div>
+      </div>
+
+      <!--  CREATE TEACHER - DYNAMIC BRANCHES -->
+      <div class="card">
+        <h3> Create Teacher</h3>
+        <form id="createTeacherForm">
+          <input id="teacherName" placeholder="Full Name" required>
+          <input id="teacherEmail" type="email" placeholder="teacher@college.com" required>
+          <input id="teacherPassword" type="password" placeholder="Password" required>
+          
+          <!--  DYNAMIC BRANCH FROM SUBJECTS -->
+          <select id="teacherBranch" required>
+            <option value=""> Loading Branches...</option>
+          </select>
+          
+          <input id="teacherSalary" type="number" placeholder="Salary (₹)" min="0" required>
+          <button type="submit">➕ Create Teacher</button>
+        </form>
+        <div id="teacherSubjectsPreview" style="margin-top: 10px; padding: 8px; background: #f0fdf4; border-radius: 6px; font-size: 14px; border-left: 4px solid #10b981;"></div>
+      </div>
+
+      <!-- CREATE STUDENT - DYNAMIC BRANCHES -->
+      <div class="card">
+        <h3> Create Student</h3>
+        <form id="createStudentForm">
+          <input id="studentName" placeholder="Full Name" required>
+          <input id="studentEmail" type="email" placeholder="student@college.com" required>
+          <input id="studentPassword" type="password" placeholder="Password" required>
+          <input id="studentRollNo" placeholder="Roll No (MCA21A001)" required>
+          
+          <!--  DYNAMIC BRANCH FROM SUBJECTS -->
+          <select id="studentBranch" required>
+            <option value=""> Loading Branches...</option>
+          </select>
+          
+          <select id="studentSemester" required>
+            <option value=""> Select Semester</option>
+            <option value="1st">1st Semester</option>
+            <option value="2nd">2nd Semester</option>
+            <option value="3rd">3rd Semester</option>
+            <option value="4th">4th Semester</option>
+          </select>
+          
+          <!--  SUBJECTS PREVIEW -->
+          <div id="subjectsPreview" style="background: linear-gradient(135deg, #f0f8ff, #e0f2fe); padding: 12px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #3b82f6; font-size: 14px;">
+            <strong> Subjects: </strong><span id="subjectsList">-- Select Branch + Semester --</span>
+          </div>
+          
+          <button type="submit" id="createStudentBtn">➕ Create Student</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- SUBJECTS DASHBOARD -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>Subjects Management</h3>
+        <button id="refreshSubjectsBtn" class="btn btn-primary">Refresh</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Branch</th>
+              <th style="width: 15%;">Semester</th>
+              <th style="width: 50%;">Subjects</th>
+              <th style="width: 10%;">Date</th>
+            </tr>
+          </thead>
+          <tbody id="subjectsTableBody">
+            <tr><td colspan="4" style="text-align: center; color: #718096; padding: 2rem;">Loading subjects...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- TEACHERS TABLE - WITH SUBJECTS -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>Teachers List</h3>
+        <button id="refreshTeachersBtn" class="btn btn-secondary">Refresh</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Branch</th><th>Subjects</th><th>Salary</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="teachersTableBody">
+            <tr><td colspan="6" style="text-align: center; color: #718096;">Loading teachers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- STUDENTS TABLE -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3> Students List</h3>
+        <button id="refreshStudentsBtn" class="btn btn-secondary"> Refresh</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Roll No</th><th>Branch</th><th>Semester</th><th>Subjects</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <tr><td colspan="6" style="text-align: center; color: #718096;">Loading students...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- MESSAGE -->
+    <div id="message" style="margin-top: 1rem;"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
