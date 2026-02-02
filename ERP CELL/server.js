@@ -567,8 +567,6 @@ app.get('/api/student/marks', auth, role('student'), async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log('✅ Login: http://localhost:5000/login');
-  console.log('✅ Admin: http://localhost:5000/admin');
   console.log('✅ Default Admin: admin@collegeerp.com / admin123');
   
 });

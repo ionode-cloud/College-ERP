@@ -1,5 +1,5 @@
 class CollegeERP {
-  constructor(baseURL = 'http://localhost:5000/api') {
+  constructor(baseURL = 'https://college-erp-u729.onrender.com/api') { //http://localhost:5000/api
     this.baseURL = baseURL;
     this.token = sessionStorage.getItem('token');
     this.userRole = sessionStorage.getItem('role');
@@ -40,7 +40,7 @@ class CollegeERP {
 
   //  PUBLIC APIs (no auth)
   async getBranches() {
-    return fetch('http://localhost:5000/api/branches')
+    return fetch('https://college-erp-u729.onrender.com/api/branches')
       .then(res => res.json())
       .catch(err => ({ success: false, branches: [] }));
   }
@@ -50,7 +50,7 @@ class CollegeERP {
     if (branch) params.append('branch', branch);
     if (semester) params.append('semester', semester);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`http://localhost:5000/api/subjects/all${query}`)
+    return fetch(`https://college-erp-u729.onrender.com/api/subjects/all${query}`)
       .then(res => res.json())
       .catch(err => ({ success: false, data: [] }));
   }
