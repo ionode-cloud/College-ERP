@@ -577,6 +577,26 @@ app.get('/api/student/marks', auth, role('student'), async (req, res) => {
     .sort({ marks: -1 });
   res.json(marks);
 });
+// ADD THIS - Line ~50 (AFTER models)
+app.post('/api/setup/admin', async (req, res) => {
+  try {
+    let admin = await User.findOne({ email: 'admin@collegeerp.com' });
+    if (!admin) {
+      const hashed = await bcrypt.hash('admin123', 10);
+      admin = new User({
+        email: 'admin@collegeerp.com',
+        password: hashed,
+        role: 'admin',
+        name: 'Super Admin'
+      });
+      await admin.save();
+      console.log('✅ MANUAL ADMIN CREATED');
+    }
+    res.json({ success: true, adminExists: !!admin });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
