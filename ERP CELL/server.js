@@ -15,11 +15,18 @@ const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
 app.use(cors({
-  origin: 'http://localhost:5000',  //  FIX CORS
+  origin: '*',  //  FIX CORS
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
+
+app.use(express.static(path.join(__dirname, "frontend")));
+
+// Default route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+});
 
 //  CRITICAL FIX: Proper mongoose.Types import
 const mongooseTypes = mongoose.Types;
