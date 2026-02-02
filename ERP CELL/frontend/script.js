@@ -39,21 +39,21 @@ class CollegeERP {
   }
 
   //  PUBLIC APIs (no auth)
-  async getBranches() {
-    return fetch('https://college-erp-rkao.onrender.com/api/branches')
-      .then(res => res.json())
-      .catch(err => ({ success: false, branches: [] }));
-  }
+async getBranches() {
+  return this.request('/branches')
+    .then(data => ({ success: true, branches: data.branches || [] }))
+    .catch(err => ({ success: false, branches: [] }));
+}
 
   async getAllSubjects(branch = '', semester = '') {
-    const params = new URLSearchParams();
-    if (branch) params.append('branch', branch);
-    if (semester) params.append('semester', semester);
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`https://college-erp-rkao.onrender.com/api/subjects/all${query}`)
-      .then(res => res.json())
-      .catch(err => ({ success: false, data: [] }));
-  }
+  const params = new URLSearchParams();
+  if (branch) params.append('branch', branch);
+  if (semester) params.append('semester', semester);
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return this.request(`/subjects/all${query}`)
+    .then(data => ({ success: true, data: data.data || [] }))
+    .catch(err => ({ success: false, data: [] }));
+}
 
   // AUTH
   async login(email, password) {
