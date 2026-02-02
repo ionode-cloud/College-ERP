@@ -139,9 +139,20 @@ function getGradeColor(grade) {
 }
 
 function redirectToDashboard(data) {
-  const roleDashboards = { 'admin': '/admin', 'teacher': '/teacher', 'student': '/student' };
-  window.location.href = data.redirect || roleDashboards[data.role];
+  console.log('🔄 Redirecting:', data.role);
+  
+  const BACKEND_BASE = 'https://college-erp-rkao.onrender.com';
+  const roleDashboards = { 
+    'admin': `${BACKEND_BASE}/admin`,
+    'teacher': `${BACKEND_BASE}/teacher`, 
+    'student': `${BACKEND_BASE}/student`
+  };
+  
+  window.location.href = data.redirect ? 
+    `${BACKEND_BASE}${data.redirect}` : 
+    roleDashboards[data.role];
 }
+
 
 //  GLOBAL STATE
 window.toggleSubmitBtn = (btnId, enable) => {
@@ -750,6 +761,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // 🔥 BULLETPROOF LOGIN FUNCTION - SINGLE SOURCE OF TRUTH
+// 🔥 FIXED LOGIN FUNCTION - CORRECT BACKEND ROUTES
 async function handleLogin() {
   const email = safeGetElement('loginEmail')?.value?.trim();
   const password = safeGetElement('loginPassword')?.value;
@@ -762,7 +774,6 @@ async function handleLogin() {
     return;
   }
   
-  // Disable button during login
   if (loginBtn) {
     loginBtn.disabled = true;
     loginBtn.textContent = 'Logging in...';
@@ -773,23 +784,25 @@ async function handleLogin() {
     const result = await erp.login(email, password);
     
     console.log('✅ Login SUCCESS:', result.role, result.user?.name);
-    
-    // Save to sessionStorage (already done in erp.login())
     showMessage(`Welcome ${result.user?.name || result.role}!`, 'success');
     
-    // Redirect based on role
+    // 🔥 FIXED: Backend dashboard URLs (Render serves HTML)
+    const BACKEND_BASE = 'https://college-erp-rkao.onrender.com';
     const roleDashboards = { 
-      'admin': '/admin', 
-      'teacher': '/teacher', 
-      'student': '/student' 
+      'admin': `${BACKEND_BASE}/admin`,
+      'teacher': `${BACKEND_BASE}/teacher`, 
+      'student': `${BACKEND_BASE}/student`
     };
-    window.location.href = result.redirect || roleDashboards[result.role];
     
+    // Use backend redirect OR role-based URL
+    window.location.href = result.redirect ? 
+      `${BACKEND_BASE}${result.redirect}` : 
+      roleDashboards[result.role];
+      
   } catch (err) {
     console.error('❌ Login FAILED:', err.message);
     showMessage(err.message || 'Login failed - check credentials', 'error');
   } finally {
-    // Re-enable button
     if (loginBtn) {
       loginBtn.disabled = false;
       loginBtn.textContent = 'Login';
