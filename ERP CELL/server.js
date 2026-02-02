@@ -14,18 +14,10 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/erp')
 const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
-app.set('trust proxy', 1);
 app.use(cors({
-  origin: [
-    "https://college-erp-rkao.onrender.com",           // Backend
-    "https://college-erp-beta.vercel.app",             // ← YOUR VERCEL URL!
-    "http://localhost:5000",                          // Local                  
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'http://localhost:5000',  //  FIX CORS
+  credentials: true
 }));
-
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
@@ -203,18 +195,12 @@ app.post('/api/auth/login', async (req, res) => {
     });
     
     //  SEND TOKEN IN RESPONSE + COOKIE
-    // res.cookie('jwt', token, { 
-    //   httpOnly: true,
-    //   secure: false,  // Set true for production HTTPS
-    //   sameSite: 'lax',
-    //   maxAge: 24 * 60 * 60 * 1000 
-    // });
     res.cookie('jwt', token, { 
-  httpOnly: true, 
-  secure: process.env.NODE_ENV === 'production',  // false for local
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  maxAge: 24 * 60 * 60 * 1000  // 24h
-});
+      httpOnly: true,
+      secure: false,  // Set true for production HTTPS
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 
+    });
     
     const userData = {
       id: user._id,
@@ -576,26 +562,6 @@ app.get('/api/student/marks', auth, role('student'), async (req, res) => {
     .populate('classId', 'name')
     .sort({ marks: -1 });
   res.json(marks);
-});
-// ADD THIS - Line ~50 (AFTER models)
-app.post('/api/setup/admin', async (req, res) => {
-  try {
-    let admin = await User.findOne({ email: 'admin@collegeerp.com' });
-    if (!admin) {
-      const hashed = await bcrypt.hash('admin123', 10);
-      admin = new User({
-        email: 'admin@collegeerp.com',
-        password: hashed,
-        role: 'admin',
-        name: 'Super Admin'
-      });
-      await admin.save();
-      console.log('✅ MANUAL ADMIN CREATED');
-    }
-    res.json({ success: true, adminExists: !!admin });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
 const PORT = process.env.PORT || 5000;

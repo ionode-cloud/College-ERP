@@ -1,5 +1,5 @@
 class CollegeERP {
-  constructor(baseURL = 'https://college-erp-rkao.onrender.com/api') { //http://localhost:5000/api
+  constructor(baseURL = 'http://localhost:5000/api') {
     this.baseURL = baseURL;
     this.token = sessionStorage.getItem('token');
     this.userRole = sessionStorage.getItem('role');
@@ -39,21 +39,21 @@ class CollegeERP {
   }
 
   //  PUBLIC APIs (no auth)
-async getBranches() {
-  return this.request('/branches')
-    .then(data => ({ success: true, branches: data.branches || [] }))
-    .catch(err => ({ success: false, branches: [] }));
-}
+  async getBranches() {
+    return fetch('http://localhost:5000/api/branches')
+      .then(res => res.json())
+      .catch(err => ({ success: false, branches: [] }));
+  }
 
   async getAllSubjects(branch = '', semester = '') {
-  const params = new URLSearchParams();
-  if (branch) params.append('branch', branch);
-  if (semester) params.append('semester', semester);
-  const query = params.toString() ? `?${params.toString()}` : '';
-  return this.request(`/subjects/all${query}`)
-    .then(data => ({ success: true, data: data.data || [] }))
-    .catch(err => ({ success: false, data: [] }));
-}
+    const params = new URLSearchParams();
+    if (branch) params.append('branch', branch);
+    if (semester) params.append('semester', semester);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return fetch(`http://localhost:5000/api/subjects/all${query}`)
+      .then(res => res.json())
+      .catch(err => ({ success: false, data: [] }));
+  }
 
   // AUTH
   async login(email, password) {
@@ -139,20 +139,9 @@ function getGradeColor(grade) {
 }
 
 function redirectToDashboard(data) {
-  console.log('🔄 Redirecting:', data.role);
-  
-  const BACKEND_BASE = 'https://college-erp-rkao.onrender.com';
-  const roleDashboards = { 
-    'admin': `${BACKEND_BASE}/admin`,
-    'teacher': `${BACKEND_BASE}/teacher`, 
-    'student': `${BACKEND_BASE}/student`
-  };
-  
-  window.location.href = data.redirect ? 
-    `${BACKEND_BASE}${data.redirect}` : 
-    roleDashboards[data.role];
+  const roleDashboards = { 'admin': '/admin', 'teacher': '/teacher', 'student': '/student' };
+  window.location.href = data.redirect || roleDashboards[data.role];
 }
-
 
 //  GLOBAL STATE
 window.toggleSubmitBtn = (btnId, enable) => {
@@ -669,45 +658,38 @@ window.loadAllSubjects = async () => {
   }
 };
 
-// 🔥 MASTER INIT - BULLETPROOF LOGIN FIX
+//  MASTER INIT - ADMIN SAFE
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 CollegeERP Loaded -', window.location.pathname);
   
-  // 🔥 PERFECT LOGIN PAGE HANDLER
+  //  LOGIN PAGE
   if (window.location.pathname.includes('login')) {
-    console.log('🔐 Login page detected - attaching handlers');
-    
+    console.log(' Login page detected');
     const loginForm = safeGetElement('loginForm');
-    const loginBtn = safeGetElement('loginBtn') || loginForm?.querySelector('button[type="submit"]');
-    
-    // METHOD 1: Form submit (primary)
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        console.log('📝 Form submit triggered');
-        await handleLogin();
+        const email = safeGetElement('loginEmail')?.value;
+        const password = safeGetElement('loginPassword')?.value;
+        
+        if (!email || !password) return showMessage('Please enter email & password!', 'error');
+        
+        try {
+          await erp.login(email, password);
+          redirectToDashboard({ role: erp.userRole });
+        } catch (err) {
+          showMessage(err.message, 'error');
+        }
       });
     }
-    
-    // METHOD 2: Button click (backup)
-    if (loginBtn) {
-      loginBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🖱️ Button click triggered');
-        await handleLogin();
-      });
-    }
-    
-    return; // Exit early for login page
+    return;
   }
   
-  // 🔥 DASHBOARDS - Rest unchanged
+  //  DASHBOARDS
   console.log(' Dashboard loading...');
   await populateDynamicBranches();
   
-  // SAFE DYNAMIC LISTENERS - Page-specific
+  //  SAFE DYNAMIC LISTENERS - Page-specific
   if (safeGetElement('classBranch')) {
     safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
   }
@@ -723,12 +705,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
   }
   
-  // BUTTON LISTENERS
+  //  BUTTON LISTENERS
   safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
   safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
   safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
   
-  // SUBJECT FORM
+  //  SUBJECT FORM
   if (safeGetElement('createSubjectForm')) {
     safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -750,7 +732,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  // LOGOUT
+  //  LOGOUT
   const logoutBtn = safeGetElement('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -759,53 +741,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
-
-// 🔥 BULLETPROOF LOGIN FUNCTION - SINGLE SOURCE OF TRUTH
-// 🔥 FIXED LOGIN FUNCTION - CORRECT BACKEND ROUTES
-async function handleLogin() {
-  const email = safeGetElement('loginEmail')?.value?.trim();
-  const password = safeGetElement('loginPassword')?.value;
-  const loginBtn = safeGetElement('loginBtn') || safeGetElement('loginForm')?.querySelector('button[type="submit"]');
-  
-  console.log('🔐 Login attempt:', { email: email ? 'provided' : 'missing', hasPassword: !!password });
-  
-  if (!email || !password) {
-    showMessage('Please enter email & password!', 'error');
-    return;
-  }
-  
-  if (loginBtn) {
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Logging in...';
-  }
-  
-  try {
-    console.log('📡 Sending POST to /api/auth/login...');
-    const result = await erp.login(email, password);
-    
-    console.log('✅ Login SUCCESS:', result.role, result.user?.name);
-    showMessage(`Welcome ${result.user?.name || result.role}!`, 'success');
-    
-    // 🔥 FIXED: Backend dashboard URLs (Render serves HTML)
-    const BACKEND_BASE = 'https://college-erp-rkao.onrender.com';
-    const roleDashboards = { 
-      'admin': `${BACKEND_BASE}/admin`,
-      'teacher': `${BACKEND_BASE}/teacher`, 
-      'student': `${BACKEND_BASE}/student`
-    };
-    
-    // Use backend redirect OR role-based URL
-    window.location.href = result.redirect ? 
-      `${BACKEND_BASE}${result.redirect}` : 
-      roleDashboards[result.role];
-      
-  } catch (err) {
-    console.error('❌ Login FAILED:', err.message);
-    showMessage(err.message || 'Login failed - check credentials', 'error');
-  } finally {
-    if (loginBtn) {
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Login';
-    }
-  }
-}
