@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const email = safeGetElement('loginEmail')?.value;
         const password = safeGetElement('loginPassword')?.value;
         
-        console.log(' Login attempt:', email); // DEBUG
+        console.log('🔐 Login attempt:', email); // DEBUG
         
         if (!email || !password) {
           return showMessage('Please enter email & password!', 'error');
@@ -678,10 +678,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         try {
           const result = await erp.login(email, password);
-          console.log(' Login success:', result.role); // DEBUG
+          console.log('✅ Login success:', result.role); // DEBUG
           redirectToDashboard({ role: result.role });
         } catch (err) {
-          console.error(' Login failed:', err); // DEBUG
+          console.error('❌ Login failed:', err); // DEBUG
           showMessage(err.message, 'error');
         }
       });
@@ -689,59 +689,59 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
   
-  //  DASHBOARDS
-  console.log(' Dashboard loading...');
-  await populateDynamicBranches();
+//   //  DASHBOARDS
+//   console.log(' Dashboard loading...');
+//   await populateDynamicBranches();
   
-  //  SAFE DYNAMIC LISTENERS - Page-specific
-  if (safeGetElement('classBranch')) {
-    safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
-  }
+//   //  SAFE DYNAMIC LISTENERS - Page-specific
+//   if (safeGetElement('classBranch')) {
+//     safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
+//   }
   
-  if (window.location.pathname.includes('teacher') && safeGetElement('teacherBranch')) {
-    safeGetElement('teacherBranch').addEventListener('change', loadTeacherSubjectsPreview);
-  }
+//   if (window.location.pathname.includes('teacher') && safeGetElement('teacherBranch')) {
+//     safeGetElement('teacherBranch').addEventListener('change', loadTeacherSubjectsPreview);
+//   }
   
-  if (safeGetElement('studentBranch')) {
-    safeGetElement('studentBranch').addEventListener('change', loadSubjectsForBranch);
-  }
-  if (safeGetElement('studentSemester')) {
-    safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
-  }
+//   if (safeGetElement('studentBranch')) {
+//     safeGetElement('studentBranch').addEventListener('change', loadSubjectsForBranch);
+//   }
+//   if (safeGetElement('studentSemester')) {
+//     safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
+//   }
   
-  //  BUTTON LISTENERS
-  safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
-  safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
-  safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
+//   //  BUTTON LISTENERS
+//   safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
+//   safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
+//   safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
   
-  //  SUBJECT FORM
-  if (safeGetElement('createSubjectForm')) {
-    safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await window.createSubjectConfig();
-    });
-  }
+//   //  SUBJECT FORM
+//   if (safeGetElement('createSubjectForm')) {
+//     safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
+//       e.preventDefault();
+//       await window.createSubjectConfig();
+//     });
+//   }
   
-  // AUTHENTICATED FEATURES
-  if (erp.token) {
-    await loadProfileData();
+//   // AUTHENTICATED FEATURES
+//   if (erp.token) {
+//     await loadProfileData();
     
-    if (window.location.pathname.includes('teacher')) {
-      await loadTeacherClasses();
-    } else if (window.location.pathname.includes('admin')) {
-      await loadAdminTables();
-      await loadAllSubjects();
-    } else if (window.location.pathname.includes('student')) {
-      await loadStudentData();
-    }
-  }
+//     if (window.location.pathname.includes('teacher')) {
+//       await loadTeacherClasses();
+//     } else if (window.location.pathname.includes('admin')) {
+//       await loadAdminTables();
+//       await loadAllSubjects();
+//     } else if (window.location.pathname.includes('student')) {
+//       await loadStudentData();
+//     }
+//   }
   
-  //  LOGOUT
-  const logoutBtn = safeGetElement('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      sessionStorage.clear();
-      window.location.href = '/login';
-    });
-  }
-});
+//   //  LOGOUT
+//   const logoutBtn = safeGetElement('logoutBtn');
+//   if (logoutBtn) {
+//     logoutBtn.addEventListener('click', () => {
+//       sessionStorage.clear();
+//       window.location.href = '/login';
+//     });
+//   }
+// });
