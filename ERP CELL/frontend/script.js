@@ -658,90 +658,141 @@ window.loadAllSubjects = async () => {
   }
 };
 
-//  MASTER INIT - ADMIN SAFE
+// 🔥 MASTER INIT - BULLETPROOF LOGIN FIX
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 CollegeERP Loaded -', window.location.pathname);
+  
+  // 🔥 PERFECT LOGIN PAGE HANDLER
   if (window.location.pathname.includes('login')) {
+    console.log('🔐 Login page detected - attaching handlers');
+    
     const loginForm = safeGetElement('loginForm');
+    const loginBtn = safeGetElement('loginBtn') || loginForm?.querySelector('button[type="submit"]');
+    
+    // METHOD 1: Form submit (primary)
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();  // CRITICAL!
-        e.stopPropagation(); // EXTRA SAFETY
-        
-        const email = safeGetElement('loginEmail')?.value;
-        const password = safeGetElement('loginPassword')?.value;
-        
-        console.log('🔐 Login attempt:', email); // DEBUG
-        
-        if (!email || !password) {
-          return showMessage('Please enter email & password!', 'error');
-        }
-        
-        try {
-          const result = await erp.login(email, password);
-          console.log('✅ Login success:', result.role); // DEBUG
-          redirectToDashboard({ role: result.role });
-        } catch (err) {
-          console.error('❌ Login failed:', err); // DEBUG
-          showMessage(err.message, 'error');
-        }
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('📝 Form submit triggered');
+        await handleLogin();
       });
     }
+    
+    // METHOD 2: Button click (backup)
+    if (loginBtn) {
+      loginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🖱️ Button click triggered');
+        await handleLogin();
+      });
+    }
+    
+    return; // Exit early for login page
+  }
+  
+  // 🔥 DASHBOARDS - Rest unchanged
+  console.log(' Dashboard loading...');
+  await populateDynamicBranches();
+  
+  // SAFE DYNAMIC LISTENERS - Page-specific
+  if (safeGetElement('classBranch')) {
+    safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
+  }
+  
+  if (window.location.pathname.includes('teacher') && safeGetElement('teacherBranch')) {
+    safeGetElement('teacherBranch').addEventListener('change', loadTeacherSubjectsPreview);
+  }
+  
+  if (safeGetElement('studentBranch')) {
+    safeGetElement('studentBranch').addEventListener('change', loadSubjectsForBranch);
+  }
+  if (safeGetElement('studentSemester')) {
+    safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
+  }
+  
+  // BUTTON LISTENERS
+  safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
+  safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
+  safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
+  
+  // SUBJECT FORM
+  if (safeGetElement('createSubjectForm')) {
+    safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await window.createSubjectConfig();
+    });
+  }
+  
+  // AUTHENTICATED FEATURES
+  if (erp.token) {
+    await loadProfileData();
+    
+    if (window.location.pathname.includes('teacher')) {
+      await loadTeacherClasses();
+    } else if (window.location.pathname.includes('admin')) {
+      await loadAdminTables();
+      await loadAllSubjects();
+    } else if (window.location.pathname.includes('student')) {
+      await loadStudentData();
+    }
+  }
+  
+  // LOGOUT
+  const logoutBtn = safeGetElement('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = '/login';
+    });
   }
 });
+
+// 🔥 BULLETPROOF LOGIN FUNCTION - SINGLE SOURCE OF TRUTH
+async function handleLogin() {
+  const email = safeGetElement('loginEmail')?.value?.trim();
+  const password = safeGetElement('loginPassword')?.value;
+  const loginBtn = safeGetElement('loginBtn') || safeGetElement('loginForm')?.querySelector('button[type="submit"]');
   
-//   //  DASHBOARDS
-//   console.log(' Dashboard loading...');
-//   await populateDynamicBranches();
+  console.log('🔐 Login attempt:', { email: email ? 'provided' : 'missing', hasPassword: !!password });
   
-//   //  SAFE DYNAMIC LISTENERS - Page-specific
-//   if (safeGetElement('classBranch')) {
-//     safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
-//   }
+  if (!email || !password) {
+    showMessage('Please enter email & password!', 'error');
+    return;
+  }
   
-//   if (window.location.pathname.includes('teacher') && safeGetElement('teacherBranch')) {
-//     safeGetElement('teacherBranch').addEventListener('change', loadTeacherSubjectsPreview);
-//   }
+  // Disable button during login
+  if (loginBtn) {
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Logging in...';
+  }
   
-//   if (safeGetElement('studentBranch')) {
-//     safeGetElement('studentBranch').addEventListener('change', loadSubjectsForBranch);
-//   }
-//   if (safeGetElement('studentSemester')) {
-//     safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
-//   }
-  
-//   //  BUTTON LISTENERS
-//   safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
-//   safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
-//   safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
-  
-//   //  SUBJECT FORM
-//   if (safeGetElement('createSubjectForm')) {
-//     safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
-//       e.preventDefault();
-//       await window.createSubjectConfig();
-//     });
-//   }
-  
-//   // AUTHENTICATED FEATURES
-//   if (erp.token) {
-//     await loadProfileData();
+  try {
+    console.log('📡 Sending POST to /api/auth/login...');
+    const result = await erp.login(email, password);
     
-//     if (window.location.pathname.includes('teacher')) {
-//       await loadTeacherClasses();
-//     } else if (window.location.pathname.includes('admin')) {
-//       await loadAdminTables();
-//       await loadAllSubjects();
-//     } else if (window.location.pathname.includes('student')) {
-//       await loadStudentData();
-//     }
-//   }
-  
-//   //  LOGOUT
-//   const logoutBtn = safeGetElement('logoutBtn');
-//   if (logoutBtn) {
-//     logoutBtn.addEventListener('click', () => {
-//       sessionStorage.clear();
-//       window.location.href = '/login';
-//     });
-//   }
-// });
+    console.log('✅ Login SUCCESS:', result.role, result.user?.name);
+    
+    // Save to sessionStorage (already done in erp.login())
+    showMessage(`Welcome ${result.user?.name || result.role}!`, 'success');
+    
+    // Redirect based on role
+    const roleDashboards = { 
+      'admin': '/admin', 
+      'teacher': '/teacher', 
+      'student': '/student' 
+    };
+    window.location.href = result.redirect || roleDashboards[result.role];
+    
+  } catch (err) {
+    console.error('❌ Login FAILED:', err.message);
+    showMessage(err.message || 'Login failed - check credentials', 'error');
+  } finally {
+    // Re-enable button
+    if (loginBtn) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+    }
+  }
+}
