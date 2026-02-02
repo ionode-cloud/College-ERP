@@ -15,28 +15,24 @@ const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
 app.use(cors({
-  origin: '*',  //  FIX CORS
+  origin: 'http://localhost:5000',  //  FIX CORS
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
-
 //  CRITICAL FIX: Proper mongoose.Types import
 const mongooseTypes = mongoose.Types;
 
-// ===== STATIC FILES (ONLY ONCE) =====
+//  STATIC FILE SERVING (FIRST - BEST PRACTICE)
 app.use(express.static(path.join(__dirname, 'frontend')));
+app.use('/css', express.static(path.join(__dirname, 'frontend/css')));
+app.use('/js', express.static(path.join(__dirname, 'frontend/js')));
 
-// ===== ROOT & AUTH PAGES =====
-app.get('/', (req, res) => {
+// Serve login page for root, login, login.html
+app.get(['/', '/login', '/login.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
-});
-
 
 //  CLASS MODEL - NEW! (CRITICAL FOR TEACHER CLASSES)
 const classSchema = new mongoose.Schema({
@@ -571,6 +567,8 @@ app.get('/api/student/marks', auth, role('student'), async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log('✅ Login: http://localhost:5000/login');
+  console.log('✅ Admin: http://localhost:5000/admin');
   console.log('✅ Default Admin: admin@collegeerp.com / admin123');
   
 });
