@@ -15,7 +15,21 @@ mongoose.connect(process.env.MONGO_URI)
 const app = express();
 
 // ✅ 2. MIDDLEWARE (CORRECT ORDER)
-app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
+// ✅ PERFECT CORS FOR Render + Vercel
+app.use(cors({
+  origin: [
+    'https://college-erp-eta.vercel.app',  // Production Vercel
+    'http://localhost:3000',                 // Local dev
+    'http://127.0.0.1:3000'                 // Local dev alternate
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle preflight explicitly
+app.options('*', cors());
+
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
