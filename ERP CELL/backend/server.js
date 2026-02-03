@@ -13,19 +13,18 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('❌ MongoDB Error:', err));
 
 const app = express();
-
-// ✅ 2. MIDDLEWARE (CORRECT ORDER)
-// ✅ PERFECT CORS FOR Render + Vercel
 app.use(cors({
   origin: [
-    'https://college-erp-eta.vercel.app',  // Production Vercel
-    'http://localhost:3000',                 // Local dev
-    'http://127.0.0.1:3000'                 // Local dev alternate
+    'http://localhost:5000',      // Backend itself
+    'http://127.0.0.1:5500',     // VS Code Live Server
+    'http://localhost:5500',      // Live Server localhost
+    'http://localhost:5522'       // Your original port
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 
 
 app.use(express.json({ limit: '10mb' }));

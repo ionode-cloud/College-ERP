@@ -1,11 +1,11 @@
 class CollegeERP {
-  constructor(baseURL = 'https://college-erp-f636.onrender.com/api') {
-    this.baseURL = baseURL;
-    this.token = sessionStorage.getItem('token');
-    this.userRole = sessionStorage.getItem('role');
-    this.user = JSON.parse(sessionStorage.getItem('user') || '{}');
+  constructor() {
+    this.baseURL = window.location.hostname === "localhost" 
+      ? "http://localhost:5000/api"           // ✅ Backend port
+      : "https://college-erp-jhzi.onrender.com/api";
+    
+    console.log('🚀 ERP Base URL:', this.baseURL);  // DEBUG
   }
-
   async request(endpoint, options = {}) {
     const config = {
       headers: {
