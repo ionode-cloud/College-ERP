@@ -5,10 +5,14 @@ class CollegeERP {
         ? "http://localhost:5000/api"
         : "https://college-erp-jhzi.onrender.com/api";
 
+    console.log('🚀 ERP Base URL:', this.baseURL); // DEBUG
+
+    // 🔥 FIXED: Consistent sessionStorage keys
     this.token = sessionStorage.getItem("token");
-    this.userRole = sessionStorage.getItem("role");
+    this.userRole = sessionStorage.getItem("userRole"); // Changed from "role"
     this.user = JSON.parse(sessionStorage.getItem("user") || "{}");
   }
+
   async request(endpoint, options = {}) {
     const config = {
       headers: {
@@ -30,7 +34,7 @@ class CollegeERP {
         let errorMsg = `HTTP ${response.status}`;
         try {
           const errorData = await response.json();
-          errorMsg = errorData.error || errorMsg;
+          errorMsg = errorData.error || errorData.message || errorMsg;
         } catch {}
         throw new Error(errorMsg);
       }
@@ -41,42 +45,71 @@ class CollegeERP {
     }
   }
 
-  //  PUBLIC APIs (no auth)
+  // 🔥 FIXED: Use request() method - NO raw fetch!
   async getBranches() {
-    return fetch('${this.baseURL}/branches')
-      .then(res => res.json())
-      .catch(err => ({ success: false, branches: [] }));
+    try {
+      console.log('🔍 Fetching branches from:', `${this.baseURL}/branches`);
+      const branches = await this.request('/branches');
+      console.log('✅ Branches loaded:', branches);
+      return branches;
+    } catch (error) {
+      console.error('❌ Branches fetch failed:', error);
+      throw new Error('Failed to load branches: ' + error.message);
+    }
   }
 
+  // 🔥 FIXED: Use request() method
   async getAllSubjects(branch = '', semester = '') {
     const params = new URLSearchParams();
     if (branch) params.append('branch', branch);
     if (semester) params.append('semester', semester);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`${this.baseURL}/subjects/all${query}`)
-      .then(res => res.json())
-      .catch(err => ({ success: false, data: [] }));
+    return this.request(`/subjects/all${query}`).catch(err => ({ 
+      success: false, 
+      data: [] 
+    }));
   }
 
-  // AUTH
+  // 🔥 FIXED: Consistent sessionStorage + Better error handling
   async login(email, password) {
-    const data = await this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    });
-    sessionStorage.setItem('token', data.token);
-    sessionStorage.setItem('role', data.role);
-    sessionStorage.setItem('user', JSON.stringify(data.user));
-    this.token = data.token;
-    this.userRole = data.role;
-    this.user = data.user;
-    return data;
+    try {
+      console.log('🔍 Login attempt:', { email, password: '***' });
+      console.log('🔍 Login URL:', `${this.baseURL}/login`);
+      
+      const data = await this.request('/login', { 
+        method: 'POST', 
+        body: JSON.stringify({ email, password }) 
+      });
+      
+      console.log('✅ Login success:', data);
+      
+      // 🔥 FIXED: Consistent keys
+      this.token = data.token;
+      this.userRole = data.role;
+      this.userEmail = data.email;
+      
+      sessionStorage.setItem('token', this.token);
+      sessionStorage.setItem('userRole', this.userRole);  // FIXED key
+      sessionStorage.setItem('userEmail', this.userEmail);
+      
+      return data;
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      throw error;
+    }
   }
 
-  // ADMIN
-  async createTeacher(data) { return this.request('/admin/create-teacher', { method: 'POST', body: JSON.stringify(data) }); }
-  async createStudent(data) { return this.request('/admin/create-student', { method: 'POST', body: JSON.stringify(data) }); }
+  // ADMIN - All using request() ✅
+  async createTeacher(data) { 
+    console.log('Creating teacher:', data);
+    return this.request('/admin/create-teacher', { method: 'POST', body: JSON.stringify(data) }); 
+  }
+  async createStudent(data) { 
+    console.log('Creating student:', data);
+    return this.request('/admin/create-student', { method: 'POST', body: JSON.stringify(data) }); 
+  }
   async createSubjectConfig(data) { 
+    console.log('Creating subjects:', data);
     return this.request('/admin/subjects', { method: 'POST', body: JSON.stringify(data) }); 
   }
   async getTeachers() { return this.request('/admin/teachers'); }
@@ -85,14 +118,13 @@ class CollegeERP {
   async updateUser(id, data) { return this.request(`/admin/update/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
   async deleteUser(id) { return this.request(`/admin/delete/${id}`, { method: 'DELETE' }); }
 
-  // PROFILE
+  // All other methods unchanged...
   async getProfile() {
     const endpoints = { 'admin': '/admin/profile', 'teacher': '/teacher/profile', 'student': '/student/profile' };
     const endpoint = endpoints[this.userRole] || '/admin/profile';
     return this.request(endpoint);
   }
 
-  // TEACHER  COMPLETE
   async getStudentsByBranch() { return this.request('/teacher/students'); }
   async getClasses() { return this.request('/teacher/classes'); }
   async createClass(data) { return this.request('/teacher/classes', { method: 'POST', body: JSON.stringify(data) }); }
@@ -103,10 +135,10 @@ class CollegeERP {
     return this.request('/teacher/marks', { method: 'POST', body: JSON.stringify({ classId, marksData }) });
   }
 
-  // STUDENT
   async getAttendance() { return this.request('/student/attendance'); }
   async getMarks() { return this.request('/student/marks'); }
 }
+
 
 const erp = new CollegeERP();
 let currentClasses = [];
