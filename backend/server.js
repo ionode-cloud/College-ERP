@@ -8,23 +8,17 @@ const path = require('path');
 require('dotenv').config();
 
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000,  
+  serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
-  maxPoolSize: 10,
-  retryWrites: true,
-  w: 'majority'
+  maxPoolSize: 10
 })
 .then(async () => {
-  console.log('✅ MongoDB Connected Successfully');
-  
-  // Seed only AFTER connection
+  console.log('✅ MongoDB Connected');
   await seedData();
 })
 .catch(err => {
-  console.error('❌ MongoDB Connection Failed:', err.message);
-  console.log('🔧 Check MongoDB Atlas IP Whitelist & MONGO_URI');
+  console.error('❌ MongoDB Failed:', err.message);
+  console.log('💡 Add MONGO_URI to Render Environment Variables');
 });
 
 const app = express();
