@@ -164,11 +164,10 @@ window.populateDynamicBranches = async () => {
   }
 
   try {
-    console.log(' Loading dynamic branches...');
     const branchData = await erp.getBranches();
     const branches = branchData.branches || [];
     
-    console.log(` Loaded ${branches.length} branches:`, branches);
+    // console.log(` Loaded ${branches.length} branches:`, branches);
     
     const dropdowns = ['teacherBranch', 'studentBranch', 'subjectBranch', 'classBranch'];
     dropdowns.forEach(dropdownId => {
@@ -658,13 +657,11 @@ window.loadAllSubjects = async () => {
   }
 };
 
-//  MASTER INIT - ADMIN SAFE
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 CollegeERP Loaded -', window.location.pathname);
-  
-  //  LOGIN PAGE
+// 🔥 MASTER INIT - FULLY FUNCTIONAL ADMIN DASHBOARD
+document.addEventListener('DOMContentLoaded', async () => {  
+  // LOGIN PAGE
   if (window.location.pathname.includes('login')) {
-    console.log(' Login page detected');
+    console.log('Login page detected');
     const loginForm = safeGetElement('loginForm');
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
@@ -685,16 +682,105 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   
-  //  DASHBOARDS
-  console.log(' Dashboard loading...');
+  // 🔥 DASHBOARDS - Load branches FIRST
   await populateDynamicBranches();
   
-  //  SAFE DYNAMIC LISTENERS - Page-specific
+  // 🔥 FORM 1: CREATE SUBJECTS
+  const subjectForm = safeGetElement('createSubjectForm');
+  if (subjectForm) {
+    subjectForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const subjects = safeGetElement('subjectNames')?.value.split(',').map(s => s.trim()).filter(Boolean);
+      const data = {
+        branch: safeGetElement('subjectBranch')?.value,
+        semester: safeGetElement('subjectSemester')?.value,
+        subjects
+      };
+
+      if (!data.branch || !data.semester || !data.subjects.length) {
+        return showMessage('Please fill all fields with valid data!', 'error');
+      }
+
+      try {
+        await erp.createSubjectConfig(data);
+        showMessage(`Subjects added for ${data.branch} ${data.semester}!`, 'success');
+        subjectForm.reset();
+        safeGetElement('subjectPreview').innerHTML = '';
+        await loadAllSubjects();
+      } catch (err) {
+        showMessage('Subject creation failed: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // 🔥 FORM 2: CREATE TEACHER
+  const teacherForm = safeGetElement('createTeacherForm');
+  if (teacherForm) {
+    teacherForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        name: safeGetElement('teacherName')?.value.trim(),
+        email: safeGetElement('teacherEmail')?.value.trim(),
+        password: safeGetElement('teacherPassword')?.value,
+        branch: safeGetElement('teacherBranch')?.value,
+        salary: parseInt(safeGetElement('teacherSalary')?.value) || 0
+      };
+
+      if (!data.name || !data.email || !data.password || !data.branch) {
+        return showMessage('Please fill all required fields!', 'error');
+      }
+
+      try {
+        await erp.createTeacher(data);
+        showMessage(`Teacher "${data.name}" created successfully!`, 'success');
+        teacherForm.reset();
+        safeGetElement('teacherSubjectsPreview').innerHTML = '';
+        await loadAdminTables();
+      } catch (err) {
+        showMessage('Teacher creation failed: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // 🔥 FORM 3: CREATE STUDENT
+  const studentForm = safeGetElement('createStudentForm');
+  if (studentForm) {
+    studentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        name: safeGetElement('studentName')?.value.trim(),
+        email: safeGetElement('studentEmail')?.value.trim(),
+        password: safeGetElement('studentPassword')?.value,
+        rollNo: safeGetElement('studentRollNo')?.value.trim(),
+        branch: safeGetElement('studentBranch')?.value,
+        semester: safeGetElement('studentSemester')?.value
+      };
+
+      if (!data.name || !data.email || !data.password || !data.rollNo || !data.branch) {
+        return showMessage('Please fill all required fields!', 'error');
+      }
+
+      try {
+        await erp.createStudent(data);
+        showMessage(`Student "${data.name}" created successfully!`, 'success');
+        studentForm.reset();
+        safeGetElement('subjectsPreview').innerHTML = '-- Select Branch + Semester --';
+        await loadAdminTables();
+      } catch (err) {
+        showMessage('Student creation failed: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // 🔥 DYNAMIC LISTENERS
   if (safeGetElement('classBranch')) {
     safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
   }
   
-  if (window.location.pathname.includes('teacher') && safeGetElement('teacherBranch')) {
+  if (safeGetElement('teacherBranch')) {
     safeGetElement('teacherBranch').addEventListener('change', loadTeacherSubjectsPreview);
   }
   
@@ -704,21 +790,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (safeGetElement('studentSemester')) {
     safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
   }
-  
-  //  BUTTON LISTENERS
+
+  // 🔥 BUTTON LISTENERS
   safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
   safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
   safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
-  
-  //  SUBJECT FORM
-  if (safeGetElement('createSubjectForm')) {
-    safeGetElement('createSubjectForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await window.createSubjectConfig();
-    });
-  }
-  
-  // AUTHENTICATED FEATURES
+
+  // 🔥 REFRESH BUTTONS
+  safeGetElement('refreshTeachersBtn')?.addEventListener('click', loadAdminTables);
+  safeGetElement('refreshStudentsBtn')?.addEventListener('click', loadAdminTables);
+  safeGetElement('refreshSubjectsBtn')?.addEventListener('click', loadAllSubjects);
+
+  // 🔥 AUTHENTICATED FEATURES
   if (erp.token) {
     await loadProfileData();
     
@@ -731,8 +814,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       await loadStudentData();
     }
   }
-  
-  //  LOGOUT
+
+  // 🔥 LOGOUT
   const logoutBtn = safeGetElement('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
