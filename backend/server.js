@@ -7,15 +7,31 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config();
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log(' MongoDB Connected'))
-  .catch(err => console.error(' MongoDB Error:', err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000,  
+  socketTimeoutMS: 45000,
+  maxPoolSize: 10,
+  retryWrites: true,
+  w: 'majority'
+})
+.then(async () => {
+  console.log('✅ MongoDB Connected Successfully');
+  
+  // Seed only AFTER connection
+  await seedData();
+})
+.catch(err => {
+  console.error('❌ MongoDB Connection Failed:', err.message);
+  console.log('🔧 Check MongoDB Atlas IP Whitelist & MONGO_URI');
+});
 
 const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
 app.use(cors({
-  origin: '*',
+  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL || 'https://college-erp-a0s2.onrender.com' : '*',
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
