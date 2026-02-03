@@ -1,5 +1,5 @@
 class CollegeERP {
-  constructor(baseURL = 'http://localhost:5000/api') {
+  constructor(baseURL = 'http://localhost:5522/api') {
     this.baseURL = baseURL;
     this.token = sessionStorage.getItem('token');
     this.userRole = sessionStorage.getItem('role');
@@ -40,7 +40,7 @@ class CollegeERP {
 
   //  PUBLIC APIs (no auth)
   async getBranches() {
-    return fetch('http://localhost:5000/api/branches')
+    return fetch('http://localhost:5522/api/branches')
       .then(res => res.json())
       .catch(err => ({ success: false, branches: [] }));
   }
@@ -50,7 +50,7 @@ class CollegeERP {
     if (branch) params.append('branch', branch);
     if (semester) params.append('semester', semester);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`http://localhost:5000/api/subjects/all${query}`)
+    return fetch(`http://localhost:5522/api/subjects/all${query}`)
       .then(res => res.json())
       .catch(err => ({ success: false, data: [] }));
   }
@@ -119,7 +119,7 @@ function showMessage(msg, type = 'success') {
     msgEl.textContent = msg;
     msgEl.className = `message ${type}`;
     msgEl.style.display = 'block';
-    setTimeout(() => msgEl.style.display = 'none', 5000);
+    setTimeout(() => msgEl.style.display = 'none', 5522);
   }
 }
 
@@ -657,7 +657,7 @@ window.loadAllSubjects = async () => {
   }
 };
 
-// 🔥 MASTER INIT - FULLY FUNCTIONAL ADMIN DASHBOARD
+//  MASTER INIT - FULLY FUNCTIONAL ADMIN DASHBOARD
 document.addEventListener('DOMContentLoaded', async () => {  
   // LOGIN PAGE
   if (window.location.pathname.includes('login')) {
@@ -682,10 +682,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   
-  // 🔥 DASHBOARDS - Load branches FIRST
+  //  DASHBOARDS - Load branches FIRST
   await populateDynamicBranches();
   
-  // 🔥 FORM 1: CREATE SUBJECTS
+  //  FORM 1: CREATE SUBJECTS
   const subjectForm = safeGetElement('createSubjectForm');
   if (subjectForm) {
     subjectForm.addEventListener('submit', async (e) => {
@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 🔥 FORM 2: CREATE TEACHER
+  //  FORM 2: CREATE TEACHER
   const teacherForm = safeGetElement('createTeacherForm');
   if (teacherForm) {
     teacherForm.addEventListener('submit', async (e) => {
@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 🔥 FORM 3: CREATE STUDENT
+  //  FORM 3: CREATE STUDENT
   const studentForm = safeGetElement('createStudentForm');
   if (studentForm) {
     studentForm.addEventListener('submit', async (e) => {
@@ -775,7 +775,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 🔥 DYNAMIC LISTENERS
+  //  DYNAMIC LISTENERS
   if (safeGetElement('classBranch')) {
     safeGetElement('classBranch').addEventListener('change', loadClassSubjectsPreview);
   }
@@ -791,17 +791,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     safeGetElement('studentSemester').addEventListener('change', loadSubjectsForBranch);
   }
 
-  // 🔥 BUTTON LISTENERS
+  //  BUTTON LISTENERS
   safeGetElement('createClassBtn')?.addEventListener('click', createTeacherClass);
   safeGetElement('submitAttendanceBtn')?.addEventListener('click', submitAttendance);
   safeGetElement('submitMarksBtn')?.addEventListener('click', submitMarks);
 
-  // 🔥 REFRESH BUTTONS
+  //  REFRESH BUTTONS
   safeGetElement('refreshTeachersBtn')?.addEventListener('click', loadAdminTables);
   safeGetElement('refreshStudentsBtn')?.addEventListener('click', loadAdminTables);
   safeGetElement('refreshSubjectsBtn')?.addEventListener('click', loadAllSubjects);
 
-  // 🔥 AUTHENTICATED FEATURES
+  //  AUTHENTICATED FEATURES
   if (erp.token) {
     await loadProfileData();
     
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // 🔥 LOGOUT
+  //  LOGOUT
   const logoutBtn = safeGetElement('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {

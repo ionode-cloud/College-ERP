@@ -15,7 +15,7 @@ const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
 app.use(cors({
-  origin: 'http://localhost:5000',  //  FIX CORS
+  origin: 'http://localhost:5522',  //  FIX CORS
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -116,7 +116,6 @@ const Marks = mongoose.model('Marks', marksSchema);
         { upsert: true }
       );
     }
-    console.log(' SUBJECTS CONFIG LOADED: MCA/BCA/CSE');
   } catch (err) {
     console.log('Setup error:', err.message);
   }
@@ -564,11 +563,9 @@ app.get('/api/student/marks', auth, role('student'), async (req, res) => {
   res.json(marks);
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5522;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log('✅ Login: http://localhost:5000/login');
-  console.log('✅ Admin: http://localhost:5000/admin');
-  console.log('✅ Default Admin: admin@collegeerp.com / admin123');
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log('Default Admin: admin@collegeerp.com / admin123');
   
 });
