@@ -173,10 +173,24 @@ function getGradeColor(grade) {
   return colors[grade] || '#ef4444';
 }
 
-function redirectToDashboard(data) {
-  const roleDashboards = { 'admin': '/admin', 'teacher': '/teacher', 'student': '/student' };
-  window.location.href = data.redirect || roleDashboards[data.role];
+function redirectToDashboard(loginResult) {
+  console.log('🔄 Redirecting:', loginResult);
+  
+  // Extract role from login result
+  const role = erp.userRole || loginResult?.role || loginResult?.data?.role;
+  
+  const roleDashboards = { 
+    'admin': '/admin.html',    // ← FIXED: .html
+    'teacher': '/teacher.html',
+    'student': '/student.html'
+  };
+  
+  const redirectUrl = roleDashboards[role] || '/login';
+  console.log('🚀 Going to:', redirectUrl, 'Role:', role);
+  
+  window.location.href = redirectUrl;
 }
+
 
 //  GLOBAL STATE
 window.toggleSubmitBtn = (btnId, enable) => {
@@ -193,48 +207,37 @@ window.toggleSubmitBtn = (btnId, enable) => {
 
 //  DYNAMIC BRANCHES
 window.populateDynamicBranches = async () => {
-  if (window.location.pathname.includes('login')) {
-    console.log('Login page - skipping branches');
-    return [];
-  }
-
-  try {
-    const branchData = await erp.getBranches();
-    const branches = branchData.branches || [];
-    
-    // console.log(` Loaded ${branches.length} branches:`, branches);
-    
-    const dropdowns = ['teacherBranch', 'studentBranch', 'subjectBranch', 'classBranch'];
-    dropdowns.forEach(dropdownId => {
-      const el = safeGetElement(dropdownId);
-      if (el) {
-        el.innerHTML = '<option value=""> Select Branch</option>';
-        branches.forEach(branch => {
-          const option = document.createElement('option');
-          option.value = branch;
-          option.textContent = branch;
-          el.appendChild(option);
-        });
+ // LOGIN PAGE HANDLER
+if (window.location.pathname.includes('login')) {
+  const loginForm = safeGetElement('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = safeGetElement('loginEmail')?.value;
+      const password = safeGetElement('loginPassword')?.value;
+      
+      if (!email || !password) {
+        return showMessage('Please enter email & password!', 'error');
+      }
+      
+      try {
+        const loginResult = await erp.login(email, password);
+        console.log('✅ Login complete:', loginResult);
+        
+        // Redirect IMMEDIATELY after login
+        setTimeout(() => {
+          redirectToDashboard(loginResult);
+        }, 500);
+        
+      } catch (err) {
+        console.error('❌ Login failed:', err);
+        showMessage(err.message, 'error');
       }
     });
-    
-    if (!window.location.pathname.includes('login') && safeGetElement('message')) {
-      showMessage(`Loaded ${branches.length} branches!`, 'success');
-    }
-    return branches;
-  } catch (err) {
-    console.error('Branches load failed:', err);
-    if (!window.location.pathname.includes('login')) {
-      const fallback = ['MCA', 'BCA', 'CSE'];
-      ['teacherBranch', 'studentBranch', 'subjectBranch', 'classBranch'].forEach(id => {
-        const el = safeGetElement(id);
-        if (el) {
-          el.innerHTML = '<option value=""> Select Branch</option>' + 
-            fallback.map(b => `<option value="${b}">${b}</option>`).join('');
-        }
-      });
-    }
   }
+  return;
+}
+
 };
 
 //  CREATE CLASS SUBJECTS PREVIEW - ALL SUBJECTS
@@ -694,6 +697,14 @@ window.loadAllSubjects = async () => {
 
 //  MASTER INIT - FULLY FUNCTIONAL ADMIN DASHBOARD
 document.addEventListener('DOMContentLoaded', async () => {  
+  console.log('🚀 Page:', window.location.pathname);
+  
+  // 🔥 AUTO-LOGIN CHECK
+  if (erp.token && erp.userRole && window.location.pathname.includes('login')) {
+    console.log('🔓 Already logged in, redirecting...');
+    redirectToDashboard({ role: erp.userRole });
+    return;
+  }
   // LOGIN PAGE
   if (window.location.pathname.includes('login')) {
     console.log('Login page detected');

@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config();
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/erp')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log(' MongoDB Connected'))
   .catch(err => console.error(' MongoDB Error:', err));
 
@@ -23,6 +23,21 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
+// 🔥 PUBLIC ACCESS - Serve HTML files directly
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
+});
+app.get('/teacher.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'teacher.html'));
+});
+app.get('/student.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'student.html'));
+});
+
+// 🔥 PROTECTED ROUTES (keep existing)
+app.get('/admin', auth, role('admin'), (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
+});
 
 //  CRITICAL FIX: Proper mongoose.Types import
 const mongooseTypes = mongoose.Types;
