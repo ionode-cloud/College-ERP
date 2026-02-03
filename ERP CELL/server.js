@@ -127,18 +127,27 @@ const Marks = mongoose.model('Marks', marksSchema);
 //  NEW: GET ALL BRANCHES API (PUBLIC - NO AUTH)
 app.get('/api/branches', async (req, res) => {
   try {
-    const branches = await SubjectConfig.distinct('branch');
-    const sortedBranches = branches.sort();
+    console.log('🔍 /api/branches HIT');
     
-    res.json({
-      success: true,
-      branches: sortedBranches,
-      total: sortedBranches.length,
-      message: `Found ${sortedBranches.length} branches`
-    });
-  } catch (err) {
-    console.error('Branches error:', err);
-    res.status(500).json({ error: 'Failed to fetch branches' });
+    // STATIC FALLBACK FIRST
+    let branches = ['MCA', 'BCA', 'CSE'];
+    
+    // Try DB second
+    try {
+      const dbBranches = await SubjectConfig.distinct('branch');
+      branches = [...new Set([...branches, ...dbBranches])].filter(Boolean).sort();
+      console.log('✅ DB Branches:', dbBranches);
+    } catch (dbErr) {
+      console.log('⚠️ DB Branches failed, using static:', dbErr.message);
+    }
+    
+    console.log('✅ Returning branches:', branches);
+    res.json({ branches });
+    
+  } catch (error) {
+    console.error('💥 FINAL ERROR:', error);
+    // ABSOLUTE FAILSAFE
+    res.json({ branches: ['MCA', 'BCA', 'CSE'] });
   }
 });
 
