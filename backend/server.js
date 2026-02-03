@@ -6,21 +6,6 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 require('dotenv').config();
-
-mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 45000,
-  maxPoolSize: 10
-})
-.then(async () => {
-  console.log('✅ MongoDB Connected');
-  await seedData();
-})
-.catch(err => {
-  console.error('❌ MongoDB Failed:', err.message);
-  console.log('💡 Add MONGO_URI to Render Environment Variables');
-});
-
 const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
@@ -43,6 +28,35 @@ app.use('/js', express.static(path.join(__dirname, 'frontend/js')));
 app.get(['/', '/login', '/login.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
+// MONGODB CONNECTION (seedData now accessible!)
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 10
+}).then(async () => {
+  console.log('✅ MongoDB Connected');
+  await seedData();
+}).catch(err => {
+  console.error('❌ MongoDB Failed:', err.message);
+});
+
+// AUTH MIDDLEWARE
+const auth = (req, res, next) => {
+  let token = req.cookies.jwt || req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET || 'secretkey-collegeerp-2026');
+    next();
+  } catch (err) {
+    res.clearCookie('jwt');
+    res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+const role = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
+  next();
+};
 
 //  CLASS MODEL - NEW! (CRITICAL FOR TEACHER CLASSES)
 const classSchema = new mongoose.Schema({
