@@ -1,11 +1,12 @@
+
 class CollegeERP {
-  constructor() {
-    this.baseURL = window.location.hostname === "localhost" 
-      ? "http://localhost:5000/api"           // ✅ Backend port
-      : "https://college-erp-jhzi.onrender.com/api";
-    
-    console.log('🚀 ERP Base URL:', this.baseURL);  // DEBUG
+  constructor(baseURL = 'http://localhost:5000/api') {
+    this.baseURL = baseURL;
+    this.token = sessionStorage.getItem('token');
+    this.userRole = sessionStorage.getItem('role');
+    this.user = JSON.parse(sessionStorage.getItem('user') || '{}');
   }
+
   async request(endpoint, options = {}) {
     const config = {
       headers: {
@@ -40,7 +41,7 @@ class CollegeERP {
 
   //  PUBLIC APIs (no auth)
   async getBranches() {
-    return fetch('https://college-erp-f636.onrender.com/api/branches')
+    return fetch('http://localhost:5000/api/branches')
       .then(res => res.json())
       .catch(err => ({ success: false, branches: [] }));
   }
@@ -50,7 +51,7 @@ class CollegeERP {
     if (branch) params.append('branch', branch);
     if (semester) params.append('semester', semester);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`https://college-erp-f636.onrender.com/api/subjects/all${query}`)
+    return fetch(`http://localhost:5000/api/subjects/all${query}`)
       .then(res => res.json())
       .catch(err => ({ success: false, data: [] }));
   }
