@@ -1,11 +1,14 @@
 class CollegeERP {
-  constructor(baseURL = 'http://localhost:5522/api') {
-    this.baseURL = baseURL;
-    this.token = sessionStorage.getItem('token');
-    this.userRole = sessionStorage.getItem('role');
-    this.user = JSON.parse(sessionStorage.getItem('user') || '{}');
-  }
+  constructor() {
+    this.baseURL =
+      window.location.hostname === "localhost"
+        ? "http://localhost:5000/api"
+        : "https://college-erp-jhzi.onrender.com/api";
 
+    this.token = sessionStorage.getItem("token");
+    this.userRole = sessionStorage.getItem("role");
+    this.user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  }
   async request(endpoint, options = {}) {
     const config = {
       headers: {
@@ -40,7 +43,7 @@ class CollegeERP {
 
   //  PUBLIC APIs (no auth)
   async getBranches() {
-    return fetch('http://localhost:5522/api/branches')
+    return fetch('${this.baseURL}/branches')
       .then(res => res.json())
       .catch(err => ({ success: false, branches: [] }));
   }
@@ -50,7 +53,7 @@ class CollegeERP {
     if (branch) params.append('branch', branch);
     if (semester) params.append('semester', semester);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return fetch(`http://localhost:5522/api/subjects/all${query}`)
+    return fetch(`${this.baseURL}/subjects/all${query}`)
       .then(res => res.json())
       .catch(err => ({ success: false, data: [] }));
   }
