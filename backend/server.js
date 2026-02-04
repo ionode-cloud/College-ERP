@@ -14,12 +14,14 @@ mongoose.connect(process.env.MONGO_URI)
 const app = express();
 
 //  MIDDLEWARE ORDER (CRITICAL)
+app.use(helmet());
 app.use(cors({
-  origin: '*',
-  credentials: true
+  origin: 'https://college-erp-rwhn.vercel.app',  // ✅ Your Vercel URL
+  credentials: true  
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json());
 app.use(cookieParser());
+
 
 //  CRITICAL FIX: Proper mongoose.Types import
 const mongooseTypes = mongoose.Types;
